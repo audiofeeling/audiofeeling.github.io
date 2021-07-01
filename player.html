@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+	  <title>AudioFeel</title>
+		<script src="./howler.core.js"></script>
+	  <script src="./howler.spatial.js"></script>
+<style>
+:root {
+	--main-height: 100vh;
+	--main-width: 100vw;
+
+	--cover-shadow-color: #0004;
+	--cover-size: 25vh;
+	--cover-large-size: 28vh;
+
+	--side-size: 20vh;
+	--side-margin: 5vh;
+}
+
+html {
+	box-sizing: border-box;
+}
+
+*, *:before, *:after {
+	box-sizing: inherit;
+}
+
+body, html {
+  margin: 0;
+}
+
+html {
+  font-size: 1rem;
+  font-family: 'Open Sans', sans-serif;
+}
+
+body {
+	background: black;
+}
+
+main {
+	background-color: black;
+	margin: 0;
+	width: var(--main-width);
+	height: var(--main-height);
+	overflow: hidden;
+	position: relative;
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+}
+
+a.menu {
+	text-decoration: none;
+	position: absolute;
+	top: 0;
+	width: var(--side-size);
+	height: var(--side-size);
+
+	left:0;
+  right:0;
+  margin-left: auto;
+  margin-right: auto;
+	opacity: 1;
+  transition: 1s ease-in opacity;
+}
+
+.playing .menu {
+	opacity: 0;
+}
+
+@keyframes breathe {
+	0% {
+		width: var(--cover-size);
+		height: var(--cover-size);
+		left: calc((var(--main-width) - var(--cover-size))/2);
+		bottom: var(--cover-size);
+	}
+	5% {
+		width: var(--cover-large-size);
+		height: var(--cover-large-size);
+		left: calc((var(--main-width) - var(--cover-large-size))/2);
+		bottom: var(--cover-size);
+	}
+	15% {
+		width: var(--cover-size);
+		height: var(--cover-size);
+		left: calc((var(--main-width) - var(--cover-size))/2);
+		bottom: var(--cover-size);
+	}
+	100% {
+		width: var(--cover-size);
+		height: var(--cover-size);
+		left: calc((var(--main-width) - var(--cover-size))/2);
+		bottom: var(--cover-size);
+	}
+}
+
+.cover {
+	box-shadow:
+		1vh 1vh 2vh var(--cover-shadow-color),
+		-1vh -1vh 2vh var(--cover-shadow-color)
+	;
+	border-radius: 5vh;
+	width: var(--cover-size);
+	height: var(--cover-size);
+	overflow: hidden;
+	left: calc((var(--main-width) - var(--cover-size))/2);
+	bottom: var(--cover-size);
+	position: absolute;
+	animation: 10s ease breathe;
+	opacity: 1;
+}
+
+.cover img, .cover video {
+	height: 100%;
+	width: 100%;
+}
+
+.playing .cover {
+	animation: unset;
+	transition: 10s cubic-bezier( 0.99, 0, 0.82, 0.93 ) opacity;
+	opacity: 0;
+}
+
+.side {
+	position: absolute;
+	width: var(--side-size);
+	height: var(--side-size);
+}
+
+.top {
+	top: calc(0px - var(--side-margin) - var(--side-size));
+	left: calc((var(--main-width) - var(--side-size))/2);
+	transform: rotate(-90deg);
+	opacity: 0;
+	transition: 1s top, 1s linear opacity, 1s transform;
+}
+
+.playing:not(.swapping) .top {
+	top: calc(var(--side-margin) - var(--side-size));
+	transform: rotate(-90deg);
+	opacity: 1;
+}
+
+.playing:not(.swapping) .top.active {
+	transition: 1s top, 1s transform;
+	top: -5vh; /* `- var(--side-margin)` is broken; */
+	transform: rotate(-135deg);
+}
+
+.left {
+	top: calc((var(--main-height) - var(--side-size))/2);
+	left: calc(0px - var(--side-margin) - var(--side-size));
+	transform: rotate(20deg);
+	opacity: 0;
+	transition: 1s left, 1s linear opacity, 1s transform;
+}
+
+.playing:not(.swapping) .left {
+	left: calc(var(--side-margin) - var(--side-size));
+	transform: rotate(20deg);
+	opacity: 1;
+}
+
+.playing:not(.swapping) .left.active {
+	transition: 1s left, 1s transform;
+	left: -5vh; /* `- var(--side-margin)` is broken; */
+	transform: rotate(65deg);
+}
+
+.right {
+	top: calc((var(--main-height) - var(--side-size))/2);
+	right: calc(0px - var(--side-margin) - var(--side-size));
+	transform: rotate(-20deg);
+	opacity: 0;
+	transition: 1s right, 1s linear opacity, 1s transform;
+}
+
+.playing:not(.swapping) .right {
+	right: calc(var(--side-margin) - var(--side-size));
+	transform: rotate(-20deg);
+	opacity: 1;
+}
+
+.playing:not(.swapping) .right.active {
+	transition: 1s right, 1s transform;
+	right: -5vh; /* `- var(--side-margin)` is broken; */
+	transform: rotate(-65deg);
+}
+
+.hidden {
+	display: none;
+}
+
+.background {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: var(--main-width);
+	height: var(--main-height);
+	opacity: 0;
+}
+
+.playing .background {
+	transition: 10s cubic-bezier( 0.99, 0, 0.82, 0.93 ) opacity;
+	opacity: 1;
+}
+
+.background.balance_ton_quoi img {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: var(--main-width);
+	display: block;
+}
+
+.background.balance_ton_quoi video {
+	border-radius: 5vh;
+	width: var(--cover-size);
+	height: var(--cover-size);
+	left: calc((var(--main-width) - var(--cover-size))/2);
+	bottom: var(--cover-size);
+	position: absolute;
+}
+
+.background.dkr img {
+	position: absolute;
+	top: 60vh;
+	left: -5vh;
+	width: 60vh;
+	transform: rotate(-10deg);
+	display: block;
+	opacity: 1;
+}
+
+@keyframes waves {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+}
+
+.background.x {
+	width: var(--main-width);
+	width: var(--main-height);
+	background-color: black;
+  background-image: linear-gradient(
+		45deg,
+		#f98c15ff,
+		#b0177e88,
+		#115dcc88,
+		#10a358ff
+	);
+	animation: 3s ease-in-out infinite waves;
+	background-size: 150% 150%;
+}
+
+.background.x img {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: var(--main-width);
+	opacity: 0;
+}
+
+.playing .background.x img {
+	transition: 10s cubic-bezier( 0.99, 0, 0.82, 0.93 ) opacity;
+	opacity: 0.7;
+}
+
+</style>
+  </head>
+	<body>
+    <main>
+
+			<div class="background x hidden">
+				<img src="media/black-panther.png">
+			</div>
+
+			<div class="background dkr hidden">
+				<img src="media/ship.svg">
+				<img src="media/dkr.jpg">
+			</div>
+
+			<div class="background balance_ton_quoi hidden">
+				<img src="media/fog_2.png">
+				<video src="./media/balance_ton_quoi.mp4" muted autoplay loop></video>
+			</div>
+
+			<a class="menu" href="./index.html">
+				<img src="./media/wave.svg">
+			</a>
+
+			<img class="side top" src="./media/empty.png">
+			<img class="side left" src="./media/empty.png">
+			<img class="side right" src="./media/empty.png">
+
+			<div class="cover">
+				<img src="./media/empty.png">
+			</div>
+    </main>
+		<script>
+
+const TRACKS = {
+	balance_ton_quoi: {
+		color: '#8cc0d6',
+		shadow: '#0004',
+	},
+	generation_assassin: {
+		color: '#080703',
+		shadow: '#8A42',
+	},
+	x: {
+		color: '#414d59',
+		shadow: '#20304040',
+	},
+	dkr: {
+		color: '#081524', /* '#1d487d', */
+		shadow: '#0004',
+	},
+}
+const SWAPPING_ANIMATION_TIME = 1000;
+const SWIPE_THRESHOLD = 50;
+const TRAVEL_STEP_TIME = 300;
+const TRAVEL_STEP = 0.3;
+const POSITIONS = ['top', 'left', 'right'];
+const CHANNELS = ['vocals', 'drums', 'other'];
+const Y_FIXED = 0.5;
+const Z_NEAR = -0.5;
+const Z_FAR = -3;
+const X_CENTER = 0;
+const X_LEFT = -2;
+const X_RIGHT = 2;
+const LOCATIONS = {
+	top: {
+		far: [X_CENTER, Y_FIXED, Z_FAR],
+		near: [X_CENTER, Y_FIXED, Z_NEAR],
+	},
+	left: {
+		far: [X_LEFT, Y_FIXED, Z_FAR],
+		near: [X_LEFT, Y_FIXED, Z_NEAR],
+	},
+	right: {
+		far: [X_RIGHT, Y_FIXED, Z_FAR],
+		near: [X_RIGHT, Y_FIXED, Z_NEAR],
+	},
+}
+
+function setup() {
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	const track = urlParams.get('track');
+	const params = TRACKS[track];
+	console.debug(`Playing track ${track}`);
+
+	setupUI(track, params);
+
+	const audio = loadAudio(track);
+	const targetLocations = setupTravelManager(audio);
+	setupPlayPause(audio);
+
+	setupEvents(targetLocations);
+}
+
+function setupUI(track, params) {
+	document.querySelector('.cover img').src = `./media/${track}.jpg`
+	document.querySelector('main').style.backgroundColor = params.color;
+	document.body.style.setProperty('--cover-shadow-color', params.shadow);
+	document.querySelector(`.background.${track}`).classList.remove('hidden');
+
+	POSITIONS.forEach(
+		(position, index) => {
+			const channel = CHANNELS[index];
+			const side = document.querySelector(`img.side.${position}`);
+			setupSide(side, channel, position);
+		}
+	);
+}
+
+function setupSide(side, channel, position) {
+	side.src = `./media/${channel}.svg`;
+	side.dataset.channel = channel;
+	side.dataset.position = position;
+}
+
+
+function loadAudio(track) {
+	const audio = new Map(
+		CHANNELS.map(
+			channel => {
+				const source = new Howl({src: [`./tracks/${track}/${channel}.mp3`]});
+				source.volume(1);
+				return [channel, source];
+			}
+		)
+	);
+	return audio;
+}
+
+function setupPlayPause(audio) {
+	const main = document.querySelector('main');
+	const cover = document.querySelector('.cover');
+	cover.onclick = (event) => {
+		if (main.classList.contains('playing')) {
+			console.debug('Pause');
+			main.classList.remove('playing');
+			audio.forEach(source => source.pause());
+		} else {
+			console.debug('Play');
+			main.classList.add('playing');
+			audio.forEach(source => source.play());
+		}
+	};
+}
+
+function setupEvents(targetLocations) {
+	const sides = Array.from(document.querySelectorAll(`.side`));
+
+	// Tilt motion
+	window.ondevicemotion = function(event) {
+		const accX = Math.round(event.accelerationIncludingGravity.x);
+		const accZ = Math.round(event.accelerationIncludingGravity.z);
+		tilt(targetLocations, 'top', accZ > 5);
+		tilt(targetLocations, 'left', accX < -5);
+		tilt(targetLocations, 'right', accX > 5);
+	}
+
+	// Swipe motion
+	let touchStartX = 0;
+	window.ontouchstart = (event) => {
+		touchStartX = event.changedTouches[0].screenX;
+	}
+	window.ontouchend = (event) => {
+		const touchEndX = event.changedTouches[0].screenX;
+		const deltaX = touchEndX - touchStartX;
+		if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+			swap(targetLocations, touchEndX > touchStartX);
+		}
+	}
+
+	// Tilt and swipe fallback, for desktops
+	document.body.onkeyup = (event) => {
+		tilt(targetLocations, 'top', keyboardActivation('top', 'ArrowUp'));
+		tilt(targetLocations, 'left', keyboardActivation('left', 'ArrowLeft'));
+		tilt(targetLocations, 'right', keyboardActivation('top', 'ArrowRight'));
+
+		if (event.key === 'Home') {
+			swap(targetLocations, false);
+		} else if (event.key === 'End') {
+			swap(targetLocations, true);
+		}
+	}
+
+	function keyboardActivation(position, key) {
+		const keyMatches = (event.key === key);
+		const side = document.querySelector(`.${position}`);
+		return keyMatches && !side.classList.contains('active');
+	}
+}
+
+function tilt(targetLocations, position, activation) {
+	const side = document.querySelector(`img.side.${position}`);
+
+	if (activation && !side.classList.contains('active')) {
+		console.debug(`Activate side: ${position}`);
+		side.classList.add('active');
+	} else if (!activation && side.classList.contains('active')) {
+		console.debug(`Deactivate side: ${position}`);
+		side.classList.remove('active');
+	}
+
+	const current = LOCATIONS[position][(activation) ? 'near': 'far'].slice();
+	targetLocations.set(side.dataset.channel, current);
+}
+
+function swap(targetLocations, leftToRight) {
+	console.debug(`Swipe left -> right: ${leftToRight}`);
+	const main = document.querySelector('main');
+	main.classList.add('swapping');
+
+	window.setTimeout(() => {
+		const sides = Array.from(document.querySelectorAll('.side'));
+		const channels = sides.map(side => side.dataset.channel);
+
+		// Swap positions
+		if (leftToRight) {
+			channels.unshift(channels.pop());
+		} else {
+			channels.push(channels.shift());
+		}
+		console.debug(`Channels configuration: ${channels}`);
+		sides.forEach(
+			(side, index) => {
+				const channel = channels[index];
+				setupSide(side, channel, side.dataset.position);
+
+				const target = LOCATIONS[side.dataset.position]['far'].slice();
+				targetLocations.set(side.dataset.channel, target);
+			}
+		);
+		main.classList.remove('swapping');
+	}, SWAPPING_ANIMATION_TIME);
+}
+
+function setupTravelManager(audio) {
+	// Find initial locations
+	const sides = Array.from(document.querySelectorAll('.side'));
+	const currentLocations = new Map(
+		sides.map(
+			side => {
+				const current = LOCATIONS[side.dataset.position]['far'].slice();
+				return [side.dataset.channel, current];
+			}
+		)
+	);
+
+	// Deep copy the initial location into the inital target locations
+	const targetLocations = new Map(
+		Array.from(currentLocations).map(
+			([channel, current]) => {
+				return [channel, current.map(x => x)];
+			}
+		)
+	);
+
+	// Update regularly the location
+	window.setInterval(
+		() => {
+			targetLocations.forEach(
+				(target, channel) => {
+					const current = currentLocations.get(channel);
+
+					target.forEach(
+						(targetValue, index) => {
+							const value = current[index];
+							if (value < targetValue) {
+								const nextValue = value + TRAVEL_STEP;
+								current[index] = Math.min(nextValue, targetValue);
+							} else {
+								const nextValue = value - TRAVEL_STEP;
+								current[index] = Math.max(nextValue, targetValue);
+							}
+						}
+					);
+
+					const source = audio.get(channel);
+					const [x, y, z] = current;
+					source.pos(x, y, z);
+				}
+			);
+		},
+		TRAVEL_STEP_TIME,
+	);
+
+	return targetLocations;
+}
+
+setup();
+		</script>
+  </body>
+</html>

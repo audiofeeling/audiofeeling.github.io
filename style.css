@@ -1,0 +1,13 @@
+body, html {
+  margin: 0;
+}
+
+html {
+  font-size: 10px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+main {
+ padding: 1.5em;
+ margin: auto 0;
+}
