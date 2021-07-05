@@ -3,124 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 	  <title>AudioFeel</title>
-		<style>
-
-:root {
-	--main-height: 100vh;
-	--main-width: 100vw;
-
-	--cover-shadow-color: #0004;
-	--cover-size: 25vh;
-	--cover-large-size: 28vh;
-
-	--side-size: 20vh;
-	--side-margin: 5vh;
-}
-
-html {
-	box-sizing: border-box;
-}
-
-*, *:before, *:after {
-	box-sizing: inherit;
-}
-
-body, html {
-  margin: 0;
-}
-
-html {
-  font-size: 1rem;
-  font-family: Helvetica, sans-serif;
-}
-
-body {
-	background: black;
-}
-
-main {
-	margin: 0;
-	width: 100vw;
-	height: 100vh;
-	overflow: hidden;
-	position: relative;
-	border: 1vh solid black;
-	display: table-cell;
-	text-align: center;
-	vertical-align: middle;
-}
-
-a {
-	text-decoration: none;
-}
-
-
-a.menu {
-	text-decoration: none;
-	position: absolute;
-	top: 0;
-	width: var(--side-size);
-	height: var(--side-size);
-
-	left:0;
-  right:0;
-  margin-left: auto;
-  margin-right: auto;
-	opacity: 1;
-  transition: 1s ease-in opacity;
-}
-
-aside {
-	position: absolute;
-	bottom: 0;
-	font-size: 3rem;
-	color: grey;
-}
-
-@keyframes waves {
-		0% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
-		100% {
-			background-position: 0% 50%;
-		}
-}
-
-.card {
-	font-size: 5rem;
-	font-weight: bold;
-	display: block;
-	margin: 6vh 0;
-  background-image: linear-gradient(
-		45deg,
-		#f98c15ff,
-		#b0177eff,
-		#115dccff,
-		#10a358ff
-	);
-	background-clip: text;
-	-webkit-background-clip: text;
-	color: transparent;
-	animation: 10s ease-in-out infinite waves;
-	background-size: 150% 150%;
-}
-
-.card:hover {
-	background-image: linear-gradient(
-		45deg,
-		#f98c15ff,
-		#b0177eff
-		/*,
-		#10a358ff,
-		#115dccff
-		*/
-	);
-}
-
-</style>
+		<link rel="stylesheet" href="style.css">
   </head>
 	<body>
     <main>
@@ -128,16 +11,23 @@ aside {
 				<img src="./media/wave.svg">
 			</a>
 
-			<a class="card" href="player.html?track=balance_ton_quoi">
-				Balance ta pop avec Angèle
-			</a>
-			<a class="card" href="player.html?track=dkr">
-				Embarque sur le bateau pirate de Booba
-			</a>
-			<a class="card" href="player.html?track=x">
-				Wakanda Forever!
-			</a>
-			<aside>Des experiences inédites avec vos artistes préférés.</aside>
+			<div class="cards">
+				<a class="card" href="player.html?track=balance_ton_quoi">
+					Throw off your tracks with Angèle
+				</a>
+				<a class="card" href="player.html?track=dkr">
+					Hop on Captain Booba's pirate ship
+				</a>
+				<a class="card" href="player.html?track=x">
+					Kendrick is Wakanda Forever!
+				</a>
+			<div>
+			<aside>
+				Artists promo. Use earphones <img src="./media/headphones.svg">,
+				tilt	<img src="./media/tilt.svg">
+				and swipe	<img src="./media/swipe.svg">
+				for spacial effects.
+			</aside>
     </main>
   </body>
 </html>

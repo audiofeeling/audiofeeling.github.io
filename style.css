@@ -1,13 +1,148 @@
+
+:root {
+	--main-width: 80vmin;
+	--main-height: 80vmin;
+	--main-margin-top: 10vmin;
+	--main-border-radius: 1vmin;
+	--main-border-width: 0.5vmin;
+
+	--cover-shadow-color: #0004;
+	--cover-size: 25vmin;
+	--cover-large-size: 28vmin;
+
+	--side-size: 20vmin;
+	--side-margin: 5vmin;
+
+	--card-font-size: 2rem;
+	--info-font-size: 1rem;
+}
+
+@media only screen and (hover: none) and (pointer: coarse) {
+	:root {
+		--main-height: 100vh;
+		--main-width: 100vw;
+		--main-margin-top: 0vw;
+		--main-border-radius: 0vw;
+		--main-border-width: 0vw;
+
+		--cover-size: 25vh;
+		--cover-large-size: 28vh;
+
+		--side-size: 20vh;
+		--side-margin: 5vh;
+
+		--card-font-size: 5rem;
+		--info-font-size: 3rem;
+	}
+}
+
+html {
+	box-sizing: border-box;
+}
+
+*, *:before, *:after {
+	box-sizing: inherit;
+}
+
 body, html {
   margin: 0;
 }
 
 html {
-  font-size: 10px;
-  font-family: 'Open Sans', sans-serif;
+  font-size: 1rem;
+  font-family: Helvetica, sans-serif;
+}
+
+body {
+	background: #222;
 }
 
 main {
- padding: 1.5em;
- margin: auto 0;
+	margin: auto;
+	margin-top: var(--main-margin-top);
+	width: var(--main-width);
+	height: var(--main-height);
+	border-radius: var(--main-border-radius);
+	overflow: hidden;
+	position: relative;
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+	background: black;
+	display: block;
+	border: solid #333;
+	border-width: var(--main-border-width);
+}
+
+a {
+	text-decoration: none;
+}
+
+a.menu {
+	text-decoration: none;
+	display: block;
+	position: absolute;
+	top: 0;
+	left:0;
+	right:0;
+	width: var(--side-size);
+	height: var(--side-size);
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+a.menu img {
+	width: var(--side-size);
+	height: var(--side-size);
+}
+
+aside {
+	position: absolute;
+	bottom: 0;
+	font-size: var(--info-font-size);
+	color: grey;
+}
+
+aside img {
+	width: var(--info-font-size);
+}
+
+@keyframes waves {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+}
+
+.cards {
+  margin-top: calc(1.5 * var(--side-size));
+}
+
+.card {
+	font-size: var(--card-font-size);
+	font-weight: bold;
+	display: block;
+	margin: 6vh 0;
+  background-image: linear-gradient(
+		45deg,
+		#f98c15ff,
+		#b0177eff,
+		#115dccff,
+		#10a358ff
+	);
+	background-clip: text;
+	-webkit-background-clip: text;
+	color: transparent;
+	animation: 10s ease-in-out infinite waves;
+	background-size: 150% 150%;
+}
+
+.card:hover {
+	background-image: linear-gradient(45deg, #f98c15ff, #b0177eff);
 }

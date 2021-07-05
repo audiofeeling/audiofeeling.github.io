@@ -3,71 +3,21 @@
 	<head>
 		<meta charset="utf-8">
 	  <title>AudioFeel</title>
-		<script src="./howler.core.js"></script>
+   	<link rel="stylesheet" href="style.css">
+	 	<script src="./howler.core.js"></script>
 	  <script src="./howler.spatial.js"></script>
-<style>
-:root {
-	--main-height: 100vh;
-	--main-width: 100vw;
+		<style>
 
-	--cover-shadow-color: #0004;
-	--cover-size: 25vh;
-	--cover-large-size: 28vh;
-
-	--side-size: 20vh;
-	--side-margin: 5vh;
-}
-
-html {
-	box-sizing: border-box;
-}
-
-*, *:before, *:after {
-	box-sizing: inherit;
-}
-
-body, html {
-  margin: 0;
-}
-
-html {
-  font-size: 1rem;
-  font-family: 'Open Sans', sans-serif;
-}
-
-body {
-	background: black;
-}
-
-main {
-	background-color: black;
-	margin: 0;
-	width: var(--main-width);
-	height: var(--main-height);
-	overflow: hidden;
-	position: relative;
-	display: table-cell;
-	text-align: center;
-	vertical-align: middle;
-}
-
-a.menu {
-	text-decoration: none;
-	position: absolute;
-	top: 0;
-	width: var(--side-size);
-	height: var(--side-size);
-
-	left:0;
-  right:0;
-  margin-left: auto;
-  margin-right: auto;
+.menu {
 	opacity: 1;
-  transition: 1s ease-in opacity;
+	display: block;
+	transition: 1s ease-in opacity;
 }
 
 .playing .menu {
 	opacity: 0;
+	pointer-events: none;
+	cursor: default;
 }
 
 @keyframes breathe {
@@ -111,16 +61,12 @@ a.menu {
 	position: absolute;
 	animation: 10s ease breathe;
 	opacity: 1;
-}
-
-.cover img, .cover video {
-	height: 100%;
-	width: 100%;
+	cursor: pointer;
 }
 
 .playing .cover {
 	animation: unset;
-	transition: 10s cubic-bezier( 0.99, 0, 0.82, 0.93 ) opacity;
+	transition: 10s cubic-bezier(0.99, 0, 0.82, 0.93) opacity;
 	opacity: 0;
 }
 
@@ -128,6 +74,7 @@ a.menu {
 	position: absolute;
 	width: var(--side-size);
 	height: var(--side-size);
+	cursor: pointer;
 }
 
 .top {
@@ -190,6 +137,45 @@ a.menu {
 	transform: rotate(-65deg);
 }
 
+.arrows {
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	cursor: pointer;
+	left: 0;
+	right: 0;
+	bottom: calc(0px - var(--cover-size)/2);
+	opacity: 0;
+	transition: 1s bottom, 1s linear opacity;
+}
+
+.playing .arrows {
+	bottom: 0;
+	opacity: 1;
+}
+
+.arrows img {
+	width: calc(var(--cover-size)/2);
+	display: inline-block;
+}
+
+.arrows .arrow-left {
+	transform: rotate(20deg);
+	transition: 1s transform;
+}
+
+.arrows .arrow-right {
+	transform: rotate(-20deg);
+	transition: 1s transform;
+}
+
+.playing .arrows .arrow-left,
+.playing .arrows .arrow-right {
+	transform: rotate(0deg);
+}
+
+/* Custom backgrounds */
+
 .hidden {
 	display: none;
 }
@@ -204,7 +190,7 @@ a.menu {
 }
 
 .playing .background {
-	transition: 10s cubic-bezier( 0.99, 0, 0.82, 0.93 ) opacity;
+	transition: 10s cubic-bezier(0.99, 0, 0.82, 0.93) opacity;
 	opacity: 1;
 }
 
@@ -221,57 +207,143 @@ a.menu {
 	width: var(--cover-size);
 	height: var(--cover-size);
 	left: calc((var(--main-width) - var(--cover-size))/2);
-	bottom: var(--cover-size);
+	bottom: calc(var(--cover-size) + 2*var(--main-border-width));
 	position: absolute;
+}
+
+.background.dkr {
+	perspective-origin: 50% 50%;
+	perspective: 1000px;
 }
 
 .background.dkr img {
 	position: absolute;
-	top: 60vh;
-	left: -5vh;
-	width: 60vh;
-	transform: rotate(-10deg);
+	width: var(--cover-size);
+	height: var(--cover-size);
+	left: calc((var(--main-width) - var(--cover-size))/2);
+	bottom: calc(var(--cover-size) + 2*var(--main-border-width));
 	display: block;
 	opacity: 1;
 }
 
-@keyframes waves {
-		0% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
-		100% {
-			background-position: 0% 50%;
-		}
+.background.dkr img.map {
+	transition: 20s 10s transform, 20s 10s filter;
+}
+
+.playing .background.dkr img.map {
+	filter: grayscale(60%);
+	transform:
+		translate(calc(var(--cover-size)/2), 0)
+		rotateX(70deg)
+		scale(6)
+	;
+}
+
+@keyframes color-shift {
+	from {
+		filter: invert(50%);
+	}
+	to {
+		filter: invert(0%);
+	}
+}
+
+.background.dkr img.ship {
+	animation: 20s infinite alternate ease-in-out color-shift;
+	filter: invert(50%);
+}
+
+@keyframes glipse {
+	from {
+		opacity: 0.8;
+	}
+	to {
+		opacity: 0.1;
+	}
+}
+
+@keyframes pitching {
+	from {
+		bottom: calc(0.75 * var(--cover-size) + 2*var(--main-border-width));
+	}
+	to {
+		bottom: calc(
+			0.75 * var(--cover-size) + 2*var(--main-border-width) + 10px
+		);
+	}
+}
+
+.background.dkr img.fog {
+	animation:
+		3s infinite alternate ease-in-out pitching,
+		20s infinite alternate ease-in-out glipse
+	;
+	width: calc(1.5 * var(--cover-size));
+	height: calc(1.5 * var(--cover-size));
+	left: calc((var(--main-width) - 1.5 * var(--cover-size))/2);
+	bottom: calc(0.5 * var(--cover-size) + 2*var(--main-border-width));
+}
+
+.background.dkr .ship-container {
+	transition: 10s 30s opacity;
+	opacity: 0;
+}
+
+.playing .background.dkr .ship-container {
+	opacity: 1;
 }
 
 .background.x {
 	width: var(--main-width);
 	width: var(--main-height);
-	background-color: black;
-  background-image: linear-gradient(
+	background-color: white;
+	background-image: linear-gradient(
 		45deg,
-		#f98c15ff,
+		#f98c1588,
 		#b0177e88,
 		#115dcc88,
-		#10a358ff
+		#10a35888
 	);
 	animation: 3s ease-in-out infinite waves;
 	background-size: 150% 150%;
+	opacity: 1;
 }
 
-.background.x img {
+@keyframes appear {
+	0% {
+		background: #0000;
+	}
+	50% {
+		background: #000f;
+	}
+	100% {
+		background: #0000;
+	}
+}
+
+.background.x .panther-container {
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: var(--main-width);
+	height: var(--main-height);
+}
+
+.playing .background.x .panther-container {
+	animation: 20s appear;
+}
+
+.background.x img {
+	position: absolute;
+	left: 0;
+	margin: auto auto;
+	width: var(--main-width);
+	bottom: calc((var(--main-height) - var(--main-width))/2);
 	opacity: 0;
 }
 
 .playing .background.x img {
-	transition: 10s cubic-bezier( 0.99, 0, 0.82, 0.93 ) opacity;
+	transition: 10s 10s opacity;
 	opacity: 0.7;
 }
 
@@ -281,16 +353,21 @@ a.menu {
     <main>
 
 			<div class="background x hidden">
-				<img src="media/black-panther.png">
+				<div class="panther-container">
+					<img src="media/panther.svg">
+				</div>
 			</div>
 
 			<div class="background dkr hidden">
-				<img src="media/ship.svg">
-				<img src="media/dkr.jpg">
+				<img class="map" src="media/dkr.jpg">
+				<div class="ship-container">
+					<img class="ship" src="media/flag.png">
+					<img class="fog" src="media/fog.png">
+				</div>
 			</div>
 
 			<div class="background balance_ton_quoi hidden">
-				<img src="media/fog_2.png">
+				<img src="media/clouds.png">
 				<video src="./media/balance_ton_quoi.mp4" muted autoplay loop></video>
 			</div>
 
@@ -301,10 +378,12 @@ a.menu {
 			<img class="side top" src="./media/empty.png">
 			<img class="side left" src="./media/empty.png">
 			<img class="side right" src="./media/empty.png">
+			<img class="cover" src="./media/empty.png">
 
-			<div class="cover">
-				<img src="./media/empty.png">
-			</div>
+			<div class="arrows">
+				<img class="arrow-left" src="./media/arrow-left.svg">
+				<img class="arrow-right" src="./media/arrow-right.svg">
+			<div>
     </main>
 		<script>
 
@@ -312,10 +391,6 @@ const TRACKS = {
 	balance_ton_quoi: {
 		color: '#8cc0d6',
 		shadow: '#0004',
-	},
-	generation_assassin: {
-		color: '#080703',
-		shadow: '#8A42',
 	},
 	x: {
 		color: '#414d59',
@@ -370,7 +445,7 @@ function setup() {
 }
 
 function setupUI(track, params) {
-	document.querySelector('.cover img').src = `./media/${track}.jpg`
+	document.querySelector('img.cover').src = `./media/${track}.jpg`
 	document.querySelector('main').style.backgroundColor = params.color;
 	document.body.style.setProperty('--cover-shadow-color', params.shadow);
 	document.querySelector(`.background.${track}`).classList.remove('hidden');
@@ -389,7 +464,6 @@ function setupSide(side, channel, position) {
 	side.dataset.channel = channel;
 	side.dataset.position = position;
 }
-
 
 function loadAudio(track) {
 	const audio = new Map(
@@ -423,6 +497,8 @@ function setupPlayPause(audio) {
 function setupEvents(targetLocations) {
 	const sides = Array.from(document.querySelectorAll(`.side`));
 
+	// Boost channel
+
 	// Tilt motion
 	window.ondevicemotion = function(event) {
 		const accX = Math.round(event.accelerationIncludingGravity.x);
@@ -431,6 +507,18 @@ function setupEvents(targetLocations) {
 		tilt(targetLocations, 'left', accX < -5);
 		tilt(targetLocations, 'right', accX > 5);
 	}
+
+	// Click on icons
+	function activateSide(position) {
+		const side = document.querySelector(`.${position}`);
+		tilt(targetLocations, position, !side.classList.contains('active'));
+	}
+
+	document.querySelector('.top').onclick = () => activateSide('top');
+	document.querySelector('.left').onclick = () => activateSide('left');
+	document.querySelector('.right').onclick = () => activateSide('right');
+
+	// Swap channels position
 
 	// Swipe motion
 	let touchStartX = 0;
@@ -445,23 +533,12 @@ function setupEvents(targetLocations) {
 		}
 	}
 
-	// Tilt and swipe fallback, for desktops
-	document.body.onkeyup = (event) => {
-		tilt(targetLocations, 'top', keyboardActivation('top', 'ArrowUp'));
-		tilt(targetLocations, 'left', keyboardActivation('left', 'ArrowLeft'));
-		tilt(targetLocations, 'right', keyboardActivation('top', 'ArrowRight'));
-
-		if (event.key === 'Home') {
-			swap(targetLocations, false);
-		} else if (event.key === 'End') {
-			swap(targetLocations, true);
-		}
+	// Click on arrows
+	document.querySelector('.arrow-left').onclick = () => {
+		swap(targetLocations, false);
 	}
-
-	function keyboardActivation(position, key) {
-		const keyMatches = (event.key === key);
-		const side = document.querySelector(`.${position}`);
-		return keyMatches && !side.classList.contains('active');
+	document.querySelector('.arrow-right').onclick = () => {
+		swap(targetLocations, true);
 	}
 }
 
@@ -501,7 +578,8 @@ function swap(targetLocations, leftToRight) {
 				const channel = channels[index];
 				setupSide(side, channel, side.dataset.position);
 
-				const target = LOCATIONS[side.dataset.position]['far'].slice();
+				const distance = side.classList.contains('active') ? 'near': 'far';
+				const target = LOCATIONS[side.dataset.position][distance].slice();
 				targetLocations.set(side.dataset.channel, target);
 			}
 		);
